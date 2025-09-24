@@ -1,0 +1,106 @@
+body{
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    background-image:url("east.jpg");
+    backdrop-filter: blur(10px);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.main{
+    display: block;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.bg{
+    display: flex;
+    justify-content: center;
+    align-items:center ;
+    height: 100vh;
+    align-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+    opacity: .2;
+}
+.frm{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    z-index: 99;
+    width: 100%;
+    position: relative;
+}
+.login-text{
+    border-radius: 30px;
+    width: 40%;
+    height: 80%;
+    background-color: rgba(65, 66, 66, 0.651);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.txt{
+    height: 50px;
+    width: 50%;
+    margin-top: 50px;
+    align-items: center;
+}
+.txt label{
+    position: absolute;
+    pointer-events: none;
+    margin-top: 25px;
+    transition: all .8s;
+    color: white;
+    margin-left: 12px;
+}
+.txt input{
+    position: absolute;
+    width: 20%;
+    height: 50px;
+    border: none;
+    border-bottom: 2px solid rgb(255, 0, 0);
+    border-radius: 20px;
+    box-shadow: 2px 12px 20px 0px rgba(255, 0, 0, 0.24);
+    background-color: transparent;
+    outline: none;
+    text-indent: 10px;
+    font-size: 20px;
+    color: white;
+}
+.txt input:focus ~ label,
+.txt input:valid ~ label {
+    margin-top: 0px;
+    position: absolute;
+    color: rgb(255, 255, 255);
+    transition: all .8s;
+    font-size: 10px;
+}
+form{
+    margin-top: -20px;
+    width: 45%;
+}
+.login-text img{
+    scale: 1;
+    height: 60px;
+}
+.sbmt{
+    margin-top: 40px;
+    align-self: center;
+    height: 50px;
+    width: 100%;
+    left: 55%;
+    position: relative;
+    border-radius: 20px;
+    border: 1px solid red;
+    box-shadow: 5px 5px 20px 1px black;
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    font-weight: bolder;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+}

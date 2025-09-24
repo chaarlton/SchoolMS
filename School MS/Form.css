@@ -1,0 +1,479 @@
+@media only screen and (max-width: 700px){
+    html, body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+    
+    body{
+        background-image: linear-gradient(to bottom, red, orange);
+        min-height: 100vh;
+        margin: auto;
+    }
+    h1{
+    text-align: center; 
+    margin-bottom: -50px;
+    color: white;
+    }
+    .line1{
+    background-color: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 20px;
+    width: 20px;
+    display: grid;
+    position: relative;
+    margin: 3px;
+    z-index: all;
+    transition: all .9s;
+    cursor: pointer;
+    }
+    .side-nav{
+        margin-top: 10px;
+        z-index: 99;
+
+    }
+    .menu{
+        position: absolute;
+       min-height: 100%;
+        width: 150px;
+        background-color: black;
+        top:0;
+        left: -150px;
+        transition: all .9s;
+        z-index: 10;
+    }
+    img{
+        display: none;
+    }
+    .magic{
+        position: absolute;
+        border: 5px solid white;
+        width: 25px;
+        height: 25px;
+        z-index: 99;
+        top: 1px;
+        opacity: 0;
+        display: block;
+         cursor: pointer;
+
+    }
+    .magic:checked ~ .menu{
+        background-color: rgba(255, 255, 255, 0.329);
+        left: 0;
+        transition: all .9s;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(0.3px);
+        -webkit-backdrop-filter: blur(1.3px);
+        position: absolute;
+  
+    }
+    .side-nav ul{
+    list-style-type: none;
+    text-align: left;
+    margin: none;
+    margin-top: 50px;
+    padding: 0;
+    transition: all .9s;
+     cursor: pointer;
+
+}
+li:hover,a:hover{
+    background-image: linear-gradient(yellow , red );
+
+
+}
+li a{
+    background-color: white;
+    border-bottom: 4px solid black;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 8px 6px ;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    align-content: center;
+    overflow: hidden;
+    transition: all 1s;
+}
+    .magic:checked ~ .line1:nth-child(2){
+    rotate: 60deg;
+    background-color: black;
+    border: 2px solid rgb(0, 0, 0);
+    position: absolute;
+    top: 10px;
+    transition: all  .9s;
+}
+    .magic:checked ~ .line1:nth-child(4){
+    rotate: 120deg;
+    background-color: black;
+    border: 2px solid rgb(0, 0, 0);
+    position: absolute;
+    top: 10px;
+    transition: all  .9s;
+}
+    .magic:checked ~ .line1:nth-child(3){
+    display: none;
+    transition: all  .9s;
+}
+
+.reg-form{
+    width: 100%;
+    height: max-content;
+    display: flex;
+    margin-top: 50px;
+    justify-content: center;
+    position: relative;
+    margin-bottom: -30px;
+}
+.contents{
+    width: 90%;
+    background-color: rgba(255, 255, 255, 0.507);
+    backdrop-filter: blur(1px);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+    border-radius: 10px;
+   
+}
+.txt{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    max-width: 320px;
+    
+}
+form{
+    display: grid;
+}
+
+.txt1{
+    position: absolute;
+
+}
+input{
+    height: 25px;
+    width: 100%;
+    border-radius: 20px;
+    text-indent: 22px;
+    text-transform:uppercase;
+    outline: red;
+    border: 2px solid red;
+}
+label{
+    margin: 10px;
+    pointer-events: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    color: gray;
+}
+
+input:valid ~ label,
+input:focus ~ label{
+    position: absolute;
+    font-size: 10px;
+    top:-13px;
+    color: black;
+    background-color: rgb(255, 255, 255);
+    transition: all .8s;
+    outline-color: red;
+}
+.non-text{
+    text-indent: 5px;
+    font-size: large;
+ 
+}
+.r-button{
+        display: flex;
+        align-items: center;
+        height: 50px;
+        max-width: 90%;
+        color: white;
+        margin-bottom: -20px;
+
+        font-size: 10px;
+        text-indent: 4px;
+    }
+.stand-alone{
+    width: 20px;
+}
+
+.lbl{
+        margin-left: 5px;
+    }
+h3{
+    width: 100%;
+    text-align: center;
+}
+.no-text{
+    max-width: 320px;
+    display: grid;
+}
+.terms{
+    justify-self: center;
+    width: 80%;
+    color: black;
+    display: flex;
+    text-align: center;
+    height: fit-content;
+
+}
+.terms input{
+    justify-self: left;
+    scale: .6;
+}
+.tad{
+    align-self: center;
+}
+.terms p{
+    margin-left: 20px;
+
+}
+.sub-button{
+    display: block;
+    justify-self: center;
+    position: relative;
+    width: 30%;
+    height: 30px;
+    background-image: radial-gradient(red , orange );
+    border-radius: 10px;
+    border: 1px solid white;
+    color: white;
+    box-shadow: 10px 5px 2px 2px rgba(1, 2, 1, 0.384);
+    cursor: pointer;
+    transition: all .6s;
+}
+.sub-button:hover{
+    scale: 1.1;
+    transition: all .6s;
+}
+}
+@media only screen and (min-width: 700px){
+body{
+    width: 100%;
+    margin: auto;
+}
+.main-container{
+    display: flex;
+
+}
+.container{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+}
+
+.side-menu img{
+    display: flex;
+    justify-self: center;
+    width: 120px;
+    margin-top: 20px;
+
+}
+
+.side-menu{
+ width: 20%;
+ height: 100vh;
+ position: fixed;
+ background-color: rgb(255, 72, 0);
+ box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.349);
+ z-index: 99;
+}
+.side-nav{
+    position: relative;
+    
+}
+.main{
+    width: 100%;
+
+}
+.side-nav ul{
+    list-style-type: none;
+    text-align: left;
+    margin: none;
+    padding: 0;
+    overflow-y: hidden;
+}
+li a{
+    background-color: white;
+    border-bottom: 4px solid black;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 8px 16px ;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    align-content: center;
+}
+.magic{
+    display: none;
+}
+.reg-form{
+    width: 80%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: -30px;
+    background-image: linear-gradient(red, orange, yellow);
+    justify-self: right;
+
+}
+.contents{
+    width:770px;
+    background-color: rgba(255, 255, 255, 0.507);
+    backdrop-filter: blur(1px);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+    border-radius: 10px;
+}
+.txt{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    width: 100%;
+    margin-left: -40% ;
+    
+}
+form{
+    display: grid;
+    width:500px;
+    justify-content: center;
+}
+
+.txt1{
+    position: absolute;
+
+}
+input{
+    height: 25px;
+    width: 200%;
+    border-radius: 20px;
+    text-indent: 22px;
+    text-transform:uppercase;
+    outline: red;
+    border: 2px solid red;
+}
+label{
+    margin: 10px;
+    pointer-events: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    color: gray;
+}
+
+input:valid ~ label,
+input:focus ~ label{
+    position: absolute;
+    font-size: 10px;
+    top:-13px;
+    color: black;
+    background-color: rgb(255, 255, 255);
+    transition: all .8s;
+    outline-color: red;
+}
+.non-text{
+    text-indent: 5px;
+    font-size: large;
+ 
+}
+    h1{
+    text-align: center; 
+    margin-bottom: -50px;
+    margin-left: 25%;
+    }
+.r-button{
+        display: flex;
+        align-items: center;
+        height: 50px;
+        max-width: 90%;
+        color: white;
+        margin-bottom: -20px;
+
+        font-size: 10px;
+        text-indent: 4px;
+    }
+.stand-alone{
+    width: 20px;
+}
+
+.lbl{
+        margin-left: 5px;
+    }
+h3{
+    width: 100%;
+    text-align: center;
+}
+.no-text{
+    width: 100%;
+    display: grid;
+}
+.terms{
+    justify-self: center;
+    width: 80%;
+    color: black;
+    display: flex;
+    text-align: center;
+    height: fit-content;
+    margin-left: 20%;
+
+}
+.terms input{
+    justify-self: left;
+    scale: .6;
+}
+.tad{
+    align-self: center;
+}
+.terms p{
+    margin-left: 20px;
+
+}
+
+.sub-button{
+    display: block;
+    justify-self: center;
+    position: relative;
+    width: 30%;
+    height: 30px;
+    background-image: radial-gradient(red , orange );
+    border-radius: 10px;
+    border: 1px solid white;
+    color: white;
+    box-shadow: 10px 5px 2px 2px rgba(1, 2, 1, 0.384);
+    cursor: pointer;
+    transition: all .6s;
+    margin-left: 20%;
+}
+.sub-button:hover{
+    scale: 1.1;
+    transition: all .6s;
+}
+.another {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+  position: relative;
+  width: 100%;
+  align-items: center;
+
+}
+.notice {
+    text-align: center;
+  background: #ffeded;
+  border: 1px solid #ff6b6b;
+  height:20%;
+  width: 100%; 
+  border-radius: 8px;
+  color: #a40000;
+  font-weight: bold;
+}
+
+}
