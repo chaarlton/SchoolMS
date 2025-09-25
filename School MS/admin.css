@@ -5,6 +5,51 @@ body{
 .main{
     width: 100%;
 }
+.contents{
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(203, 203, 203, 0.694);
+    margin-top: 0;
+    border: none;
+}
+
+    .dash{
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .count{
+        display: flex;
+        justify-content: center;
+        text-align: center;
+         margin-top: -5%;
+    }
+    .cnt{
+        margin: 5%;
+        margin-top: -2%;
+    }
+    .d-box{
+        width: 25%;
+        height: 30vh;
+        background-color: rgba(244, 244, 244, 0.144);
+        border-radius: 20px;
+        text-align: center;
+        color: black;
+        margin: 1%;
+        box-shadow: inset 0px 0px 10px 10px rgb(209, 209, 209);
+        backdrop-filter: blur(0px);
+    }
+        .d-box1{
+        width: 45%;
+        height: 30vh;
+        background-color: rgba(244, 244, 244, 0.316);
+        border-radius: 20px;
+        text-align: center;
+        color: black;
+        margin: 1%;
+        box-shadow: inset 0px 0px 10px 10px white;
+        backdrop-filter: blur(20px);
+    }
 .container{
     width: 100%;
     display: flex;
@@ -17,9 +62,19 @@ body{
 .right{
     width: 80%;
     overflow-y: scroll;
+     background-image: url(Picture3.png);
+     background-repeat: no-repeat;
+     background-size: contain;
+     background-position: center;
+     backdrop-filter: blur(20px);
+     -webkit-backdrop-filter: blur(20px);
 }
 ul{
 padding: 0;
+}
+.students{
+    position: relative;
+    display: none;
 }
 li{
     height: 30px;
