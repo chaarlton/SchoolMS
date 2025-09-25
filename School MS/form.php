@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $marital = $_POST['marital'];
     $yr_lvl = $_POST['year_level'];
     $course = $_POST['course'];
-
+    $mol = $_POST['mol'];
     // Address
     $street = $_POST['street'];
     $brgy = $_POST['brgy'];
@@ -35,9 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Insert profile into student_login ONLY
         $sql = "INSERT INTO student_login 
-           (L_name, F_name, M_name, bday, pbirth, gender, marital, yr_lvl, crs, street, brgy, city_mun) 
+           (L_name, F_name, M_name, bday, pbirth, gender, marital, yr_lvl, crs, street, brgy, city_mun, mol) 
            VALUES 
-           ('$lname', '$fname', '$mname', '$bday', '$pbirth', '$gender', '$marital', '$yr_lvl', '$course', '$street', '$brgy', '$city')";
+           ('$lname', '$fname', '$mname', '$bday', '$pbirth', '$gender', '$marital', '$yr_lvl', '$course', '$street', '$brgy', '$city', '$mol')";
 
         if (mysqli_query($conn, $sql)) {
             $msg = "✅ Profile submitted successfully! Await admin approval for enrollment.";
@@ -55,8 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESCR | Student Registration Form</title>
-    <link rel="stylesheet" href="Form.css">
-    <link rel="stylesheet" href="Form.css?v=3">
+    <link rel="stylesheet" href="Form.css?v=8">
     <link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
 </head>
 <body>
@@ -135,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h3 style="margin-bottom: 0px;">YEAR LEVEL</h3>
     <h3 style="text-align: center; font-size:7px ; margin-bottom: -10px; color:gray;">INDICATE WHAT LEVEL YOU ARE CURRENTLY ENROLLING TO:</h3>    
     <div class="r-button">
-    <input class="stand-alone" type="radio" name="year_level" id="" value="TEST"> 1ST YEAR COLLEGE
+    <input class="stand-alone" type="radio" name="year_level" id="" value="1ST YEAR COLLEGE"> 1ST YEAR COLLEGE
     </div>
 
     <div class="r-button">
@@ -168,17 +167,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h3>ACADEMIC YEAR & SEMESTER</h3>
 <div class="txt">
     <label style="color:black;">Academic Year</label>
-    <input type="text" name="academic_year" required placeholder="2025-2026">
+    <input type="text" name="academic_year" required placeholder="2025-2026" value="2025-2026" readonly>
 </div>
-
+<div class="section1">
 <div class="txt">
     <label style="color:black;">Semester</label>
     <select name="semester" required>
-        <option value="1">1st Semester</option>
-        <option value="2">2nd Semester</option>
+        <option value="1" selected contenteditable="false">1st Semester</option>
+        <option value="2" disabled>2nd Semester</option>
     </select>
 </div>
-
+<div class="txt">
+    <label style="color:black;">MODE OF LEARNING</label>
+    <select name="mol" required>
+        <option value="ONLINE">ONLINE/HYBRID(1 DAY F2F)</option>
+        <option value="F2F" selected>FULL FACE TO FACE </option>
+    </select>
+</div>
+</div>
 <div class="no-text" >
     <h3 style="margin-bottom: 5px;">COURSE/PROGRAM</h3>
     
@@ -218,6 +224,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input class="stand-alone" type="radio" name="course" id="" value="BTVTED - ELEC">     
     <div class="lbl">BTVTED - ELEC</div> 
     </div>
+
+            <div class="r-button">
+    <input class="stand-alone" type="radio" name="course" id="" value="BSAIS - ACCOUNTING INFORMATION SYSTEM">     
+    <div class="lbl">BSAIS - ACCOUNTING INFORMATION SYSTEM</div> 
+    </div>
+
         <div class="r-button">
     <input class="stand-alone" type="radio" name="course" id="" value="BSOA - OFFICE ADMINISTRATION">     
     <div class="lbl">BSOA - OFFICE ADMINISTRATION</div> 
