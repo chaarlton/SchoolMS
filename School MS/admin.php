@@ -39,6 +39,73 @@ $current_year = $year_now . "-" . ($year_now + 1);
 $month = date("n");
 $current_semester = ($month >= 6 && $month <= 10) ? 1 : 2;
 
+
+$res_registered = mysqli_query($conn, "SELECT COUNT(*) AS total_registered FROM student_login");
+$row_registered = mysqli_fetch_assoc($res_registered);
+$total_registered = $row_registered['total_registered'];
+
+$res_enrolled = mysqli_query($conn, "
+SELECT COUNT(*) AS total_enrolled FROM student_registrations
+WHERE academic_year = '$current_year' AND semester='$current_semester' AND
+status = 'ENROLLED'");
+$row_enrolled = mysqli_fetch_assoc($res_enrolled);
+$total_enrolled = $row_enrolled['total_enrolled'];
+
+function getCountByCourse($conn, $course){
+  $course = mysqli_real_escape_string($conn, $course);
+  $sql = "SELECT COUNT(*) AS total FROM student_registrations WHERE course='$course'";
+  $res = mysqli_query($conn, $sql);
+  $row = mysqli_fetch_assoc($res);
+  return $row['total'] ?? 0;
+}
+$bsit_students   = getCountByCourse($conn, "INFORMATION TECHNOLOGY (BSIT)");
+$bscs_students   = getCountByCourse($conn, "COMPUTER SCIENCE (BSCS)");
+$bsba_fm         = getCountByCourse($conn, "BSBA - MAJOR IN FM");
+$bsba_mm         = getCountByCourse($conn, "BSBA - MAJOR IN MM");
+$bsba_hrdm       = getCountByCourse($conn, "BSBA - MAJOR IN HRDM");
+$btvted_fsm      = getCountByCourse($conn, "BTVTED - FSM");
+$btvted_elec     = getCountByCourse($conn, "BTVTED - ELEC");
+$bsais_students   = getCountByCourse($conn, "BSAIS - ACCOUNTING INFORMATION SYSTEM");
+$bsoa_students   = getCountByCourse($conn, "BSOA - OFFICE ADMINISTRATION");
+$shs_humss       = getCountByCourse($conn, "SHS - HUMSS");
+$shs_abm         = getCountByCourse($conn, "SHS - ABM");
+$shs_ict         = getCountByCourse($conn, "SHS - ICT");
+$bsba_total = $bsba_fm + $bsba_hrdm + $bsba_mm;
+$btvted_students = $btvted_elec + $btvted_fsm;
+
+function getSHSCount($conn, $strand, $grade){
+    $strand = mysqli_real_escape_string($conn, $strand);
+    $grade  = mysqli_real_escape_string($conn, $grade);
+    $sql = "SELECT COUNT(*) AS total 
+            FROM student_login 
+            WHERE crs='$strand' AND yr_lvl='$grade'";
+    $res = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($res);
+    return $row['total'] ?? 0;
+}
+$shs_humss_g11 = getSHSCount($conn, "SHS - HUMSS", "GRADE 11");
+$shs_humss_g12 = getSHSCount($conn, "SHS - HUMSS", "GRADE 12");
+
+$shs_abm_g11   = getSHSCount($conn, "SHS - ABM", "GRADE 11");
+$shs_abm_g12   = getSHSCount($conn, "SHS - ABM", "GRADE 12");
+
+$shs_ict_g11   = getSHSCount($conn, "SHS - ICT", "GRADE 11");
+$shs_ict_g12   = getSHSCount($conn, "SHS - ICT", "GRADE 12");
+
+// Totals
+$shs_grade11_total = $shs_humss_g11 + $shs_abm_g11 + $shs_ict_g11;
+$shs_grade12_total = $shs_humss_g12 + $shs_abm_g12 + $shs_ict_g12;
+
+//Mode of Learning
+function getModeOfLearning($conn, $mol){
+  $mol = mysqli_real_escape_string($conn, $mol);
+  $sql = "SELECT COUNT(*) AS total FROM student_registrations WHERE mol = '$mol'";
+  $res = mysqli_query($conn, $sql);
+  $row = mysqli_fetch_assoc($res);
+  return $row['total'] ?? 0;
+}
+$f2f = getModeOfLearning($conn, "F2F");
+$OC = getModeOfLearning($conn, "ONLINE");
 // --------------------
 // Handle approval
 // --------------------
@@ -129,7 +196,7 @@ $result = mysqli_query($conn, $sql);
 <head>
   <meta charset="UTF-8">
   <title>ESCR | ADMIN PANEL</title>
-  <link rel="stylesheet" href="admin.css?v4">
+  <link rel="stylesheet" href="admin.css?v3">
   <link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
   <style>
       table { width: 100%; border-collapse: collapse; margin-top: 15px; }
@@ -167,6 +234,60 @@ $result = mysqli_query($conn, $sql);
       </div>
       <div class="right">
         <div class="contents">
+
+ <div class="dash">
+  <div class="d-box1">
+      <h1><?php echo $total_enrolled; ?></h1>
+      <h3>ENROLLED STUDENTS</h3>
+      <div class="count">
+      <div class="cnt">
+      <h1><?php echo $f2f; ?></h1>
+      <h3>FACE TO FACE</h3>
+</div>
+      <div class="cnt">
+      <h1><?php echo $OC; ?></h1>
+      <h3>ONLINE CLASS</h3>
+</div>
+</div>
+  </div>
+  <div class="d-box1">
+      <h1><?php echo $total_registered; ?></h1>
+      <h3>REGISTERED STUDENTS</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+
+  <div class="d-box">
+      <h1><?php echo $bsit_students; ?></h1>
+      <h3>IT STUDENTS</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+  <div class="d-box">
+      <h1><?php echo $bsba_total; ?></h1>
+      <h3>BSBA (ALL MAJOR) STUDENTS</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+  <div class="d-box">
+      <h1><?php echo $bsais_students; ?></h1>
+      <h3>BSAIS STUDENTS</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+  <div class="d-box">
+      <h1><?php echo $btvted_students; ?></h1>
+      <h3>BTVTED (ALL MAJOR) STUDENTS</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+  <div class="d-box">
+      <h1><?php echo $shs_grade11_total; ?></h1>
+      <h3>GRADE 11 (ALL STRANDS)</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+  <div class="d-box">
+      <h1><?php echo $shs_grade12_total; ?></h1>
+      <h3>GRADE 12 (ALL STRANDS)</h3>
+      <h5>A.Y <?php echo $current_year; ?></h5>
+  </div>
+</div>
+
           <div class="students">
             <h2> Student Information</h2>
 
