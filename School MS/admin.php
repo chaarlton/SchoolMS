@@ -7,6 +7,9 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
+// --------------------
+// DB Connection
+// --------------------
 $conn = mysqli_connect("localhost","root","","escr_dbase");
 if (!$conn) die("Connection failed: " . mysqli_connect_error());
 
@@ -24,7 +27,7 @@ function normalizeYearLevel($value) {
         "3RD YEAR" => "3RD YEAR",
         "4TH YEAR" => "4TH YEAR",
     ];
-    return isset($map[$value]) ? $map[$value] : "1ST YEAR";
+    return $map[$value] ?? "1ST YEAR";
 }
 
 function generateRandomPassword($length = 8) {
@@ -39,15 +42,23 @@ $current_year = $year_now . "-" . ($year_now + 1);
 $month = date("n");
 $current_semester = ($month >= 6 && $month <= 10) ? 1 : 2;
 
-
-$res_registered = mysqli_query($conn, "SELECT COUNT(*) AS total_registered FROM student_login");
+// --------------------
+// Dashboard counts
+// --------------------
+$res_registered = mysqli_query($conn, "
+    SELECT COUNT(*) AS total_registered 
+    FROM student_login
+");
 $row_registered = mysqli_fetch_assoc($res_registered);
 $total_registered = $row_registered['total_registered'];
 
+
 $res_enrolled = mysqli_query($conn, "
-SELECT COUNT(*) AS total_enrolled FROM student_registrations
-WHERE academic_year = '$current_year' AND semester='$current_semester' AND
-status = 'ENROLLED'");
+SELECT COUNT(*) AS total_enrolled 
+FROM student_registrations
+WHERE academic_year = '$current_year' 
+  AND semester='$current_semester' 
+  AND status = 'ENROLLED'");
 $row_enrolled = mysqli_fetch_assoc($res_enrolled);
 $total_enrolled = $row_enrolled['total_enrolled'];
 
@@ -65,14 +76,15 @@ $bsba_mm         = getCountByCourse($conn, "BSBA - MAJOR IN MM");
 $bsba_hrdm       = getCountByCourse($conn, "BSBA - MAJOR IN HRDM");
 $btvted_fsm      = getCountByCourse($conn, "BTVTED - FSM");
 $btvted_elec     = getCountByCourse($conn, "BTVTED - ELEC");
-$bsais_students   = getCountByCourse($conn, "BSAIS - ACCOUNTING INFORMATION SYSTEM");
+$bsais_students  = getCountByCourse($conn, "BSAIS - ACCOUNTING INFORMATION SYSTEM");
 $bsoa_students   = getCountByCourse($conn, "BSOA - OFFICE ADMINISTRATION");
 $shs_humss       = getCountByCourse($conn, "SHS - HUMSS");
 $shs_abm         = getCountByCourse($conn, "SHS - ABM");
 $shs_ict         = getCountByCourse($conn, "SHS - ICT");
-$bsba_total = $bsba_fm + $bsba_hrdm + $bsba_mm;
+$bsba_total      = $bsba_fm + $bsba_hrdm + $bsba_mm;
 $btvted_students = $btvted_elec + $btvted_fsm;
 
+// SHS breakdown
 function getSHSCount($conn, $strand, $grade){
     $strand = mysqli_real_escape_string($conn, $strand);
     $grade  = mysqli_real_escape_string($conn, $grade);
@@ -85,18 +97,15 @@ function getSHSCount($conn, $strand, $grade){
 }
 $shs_humss_g11 = getSHSCount($conn, "SHS - HUMSS", "GRADE 11");
 $shs_humss_g12 = getSHSCount($conn, "SHS - HUMSS", "GRADE 12");
-
 $shs_abm_g11   = getSHSCount($conn, "SHS - ABM", "GRADE 11");
 $shs_abm_g12   = getSHSCount($conn, "SHS - ABM", "GRADE 12");
-
 $shs_ict_g11   = getSHSCount($conn, "SHS - ICT", "GRADE 11");
 $shs_ict_g12   = getSHSCount($conn, "SHS - ICT", "GRADE 12");
 
-// Totals
 $shs_grade11_total = $shs_humss_g11 + $shs_abm_g11 + $shs_ict_g11;
 $shs_grade12_total = $shs_humss_g12 + $shs_abm_g12 + $shs_ict_g12;
 
-//Mode of Learning
+// Mode of learning
 function getModeOfLearning($conn, $mol){
   $mol = mysqli_real_escape_string($conn, $mol);
   $sql = "SELECT COUNT(*) AS total FROM student_registrations WHERE mol = '$mol'";
@@ -105,18 +114,19 @@ function getModeOfLearning($conn, $mol){
   return $row['total'] ?? 0;
 }
 $f2f = getModeOfLearning($conn, "F2F");
-$OC = getModeOfLearning($conn, "ONLINE");
+$OC  = getModeOfLearning($conn, "ONLINE");
+
 // --------------------
-// Handle approval
+// Handle approval (POST → Redirect → Get)
 // --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
     $student_id = intval($_POST['approve_id']);
-    
+    $msg = "";
+
     $res = mysqli_query($conn, "SELECT * FROM student_login WHERE ID='$student_id' LIMIT 1");
     if ($res && mysqli_num_rows($res) > 0) {
         $student = mysqli_fetch_assoc($res);
 
-        // Normalize year level
         $yr_lvl = normalizeYearLevel($student['yr_lvl']);
         $crs    = mysqli_real_escape_string($conn, $student['crs']);
 
@@ -127,45 +137,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
                           AND semester='$current_semester' LIMIT 1");
 
         if (mysqli_num_rows($checkReg) == 0) {
-            $insertReg = "INSERT INTO student_registrations
+            mysqli_query($conn, "INSERT INTO student_registrations
                 (student_id, academic_year, semester, year_level, status, date_registered, course)
                 VALUES
-                ('$student_id', '$current_year', '$current_semester', '$yr_lvl', 'ENROLLED', NOW(), '$crs')";
-            
-            if (!mysqli_query($conn, $insertReg)) {
-                die("Error inserting into student_registrations: " . mysqli_error($conn));
-            }
+                ('$student_id', '$current_year', '$current_semester', '$yr_lvl', 'ENROLLED', NOW(), '$crs')");
         }
 
         // Create user account if not exists
         $checkUser = mysqli_query($conn, "SELECT * FROM users WHERE student_id='$student_id' LIMIT 1");
         if (mysqli_num_rows($checkUser) == 0) {
             $username = strtolower(substr($student['F_name'],0,1) . $student['L_name']);
-            $password = generateRandomPassword(); // plain password
+            $password = generateRandomPassword();
 
-            $insertUser = "INSERT INTO users (username,password,role,created_at,student_id) 
-                           VALUES ('$username','$password','student',NOW(),'$student_id')";
+            mysqli_query($conn, "INSERT INTO users (username,password,role,created_at,student_id) 
+                           VALUES ('$username','$password','student',NOW(),'$student_id')");
             
-            if (!mysqli_query($conn, $insertUser)) {
-                die(" Error inserting into users: " . mysqli_error($conn));
-            }
-
-            $account_msg = "User account created → Username: $username, Password: $password";
+            $msg = "Student approved & enrolled. Account created → Username: $username, Password: $password";
         } else {
-            $account_msg = "Account already exists for this student.";
+            $msg = "Student approved & enrolled. Account already exists.";
         }
-
-        $msg = " Student approved & enrolled. $account_msg";
     } else {
-        $msg = " Student not found.";
+        $msg = "Student not found.";
     }
+
+    // 🔑 Redirect to clear POST (avoids resubmission)
+    header("Location: admin.php?view=monitor&msg=" . urlencode($msg));
+    exit;
 }
 
 // --------------------
-// Filters
+// Filters + View state
 // --------------------
 $search = $_GET['search'] ?? '';
 $date   = $_GET['date'] ?? '';
+$view   = $_GET['view'] ?? 'dash';
+$msg    = $_GET['msg'] ?? '';
 
 $sql = "SELECT s.*, 
         (SELECT status FROM student_registrations r 
@@ -190,7 +196,6 @@ $sql .= " ORDER BY s.L_name, s.F_name";
 
 $result = mysqli_query($conn, $sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,7 +203,8 @@ $result = mysqli_query($conn, $sql);
   <title>ESCR | ADMIN PANEL</title>
   <link rel="stylesheet" href="admin.css?v3">
   <link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
-  <style>
+</head>
+<style>
       table { width: 100%; border-collapse: collapse; margin-top: 15px; }
       table, th, td { border: 1px solid #ddd; }
       th { background: #2c3e50; color: #fff; padding: 10px; text-align: left; }
@@ -213,8 +219,8 @@ $result = mysqli_query($conn, $sql);
       .edit-btn { background:#3498db; color:#fff; }
       .grades-btn { background:#27ae60; color:#fff; }
       .approve-btn { background:#f39c12; color:#fff; border:none; cursor:pointer; }
+      #moni { display: none; } /* Hide monitoring by default */
   </style>
-</head>
 <body>
   <div class="main">
     <div class="container">
@@ -223,8 +229,8 @@ $result = mysqli_query($conn, $sql);
         <div class="panel">
           <nav>
             <ul>
-              <li>DASHBOARD</li>
-              <li>STUDENT MONITORING</li>
+              <li onclick="showBox('dash')">DASHBOARD</li>
+              <li onclick="showBox('monitor')">STUDENT MONITORING</li>
               <li>ADMIN CENTER</li>
               <li>TICKET CENTER</li>
               <li>IT REQUEST</li>
@@ -235,120 +241,155 @@ $result = mysqli_query($conn, $sql);
       <div class="right">
         <div class="contents">
 
- <div class="dash">
-  <div class="d-box1">
-      <h1><?php echo $total_enrolled; ?></h1>
-      <h3>ENROLLED STUDENTS</h3>
-      <div class="count">
+ <!-- Dashboard -->
+ <div class="dash" id="DashB">
+<div class="d-box1">
+    <h1 id="enrolledCount"><?php echo $total_enrolled; ?></h1>
+    <h3>ENROLLED STUDENTS</h3>
+    <div class="count">
       <div class="cnt">
-      <h1><?php echo $f2f; ?></h1>
-      <h3>FACE TO FACE</h3>
-</div>
+        <h1><?php echo $f2f; ?></h1>
+        <h3>FACE TO FACE</h3>
+      </div>
       <div class="cnt">
-      <h1><?php echo $OC; ?></h1>
-      <h3>ONLINE CLASS</h3>
-</div>
-</div>
-  </div>
-  <div class="d-box1">
-      <h1><?php echo $total_registered; ?></h1>
-      <h3>REGISTERED STUDENTS</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-
-  <div class="d-box">
-      <h1><?php echo $bsit_students; ?></h1>
-      <h3>IT STUDENTS</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-  <div class="d-box">
-      <h1><?php echo $bsba_total; ?></h1>
-      <h3>BSBA (ALL MAJOR) STUDENTS</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-  <div class="d-box">
-      <h1><?php echo $bsais_students; ?></h1>
-      <h3>BSAIS STUDENTS</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-  <div class="d-box">
-      <h1><?php echo $btvted_students; ?></h1>
-      <h3>BTVTED (ALL MAJOR) STUDENTS</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-  <div class="d-box">
-      <h1><?php echo $shs_grade11_total; ?></h1>
-      <h3>GRADE 11 (ALL STRANDS)</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
-  <div class="d-box">
-      <h1><?php echo $shs_grade12_total; ?></h1>
-      <h3>GRADE 12 (ALL STRANDS)</h3>
-      <h5>A.Y <?php echo $current_year; ?></h5>
-  </div>
+        <h1><?php echo $OC; ?></h1>
+        <h3>ONLINE CLASS</h3>
+      </div>
+    </div>
 </div>
 
-          <div class="students">
-            <h2> Student Information</h2>
+<div class="d-box1">
+    <h1 id="registeredCount"><?php echo $total_registered; ?></h1>
+    <h3>REGISTERED STUDENTS</h3>
+    <h5>A.Y <?php echo $current_year; ?></h5>
+</div>
 
-            <?php if (!empty($msg)) echo "<p><b>$msg</b></p>"; ?>
 
-            <!-- Filter Form -->
-            <form method="GET" class="filter-form">
-              <input type="text" name="search" placeholder="Search by name or student number" value="<?php echo htmlspecialchars($search); ?>">
-              <input type="date" name="date" value="<?php echo htmlspecialchars($date); ?>">
-              <button type="submit">Filter</button>
-              <a href="admin.php" style="margin-left:10px; text-decoration:none; color:#3498db;">Reset</a>
-            </form>
+  <div class="d-box"><h1><?php echo $bsit_students; ?></h1><h3>IT STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1><?php echo $bsba_total; ?></h1><h3>BSBA (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1><?php echo $bsais_students; ?></h1><h3>BSAIS STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1><?php echo $btvted_students; ?></h1><h3>BTVTED (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1><?php echo $shs_grade11_total; ?></h1><h3>GRADE 11 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1><?php echo $shs_grade12_total; ?></h1><h3>GRADE 12 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+</div>
 
-            <?php
-            if ($result && mysqli_num_rows($result) > 0) {
-                echo "<table>";
-                echo "<tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Year Level</th>
-                        <th>Course</th>
-                        <th>Student Number</th>
-                        <th>Status</th> <!-- Regular/Irregular -->
-                        <th>Enrollment Status</th> <!-- Enrolled/Not Enrolled -->
-                        <th>Actions</th>
-                      </tr>";
-                while($row = mysqli_fetch_assoc($result)) {
-                    $fullname = $row['L_name'].", ".$row['F_name']." ".$row['M_name'];
+ <!-- Student Monitoring -->
+ <div class="students" id="moni" style="display:none;">
+    <h2> Student Information</h2>
+<?php if (!empty($_GET['msg'])): ?>
+  <div id="alertBox" 
+       style="padding:10px; background:#dff0d8; color:#3c763d; border:1px solid #3c763d; margin-bottom:10px; border-radius:5px; transition: opacity 1s ease;">
+    <b><?php echo htmlspecialchars($_GET['msg']); ?></b>
+  </div>
+  <script>
+    if (window.history.replaceState) {
+      window.history.replaceState(null, null, "admin.php");
+    }
+    setTimeout(function() {
+      var box = document.getElementById("alertBox");
+      if (box) {
+        box.style.opacity = "0";
+        setTimeout(function() { box.style.display = "none"; }, 1000);
+      }
+    }, 10000);
+  </script>
+<?php endif; ?>
 
-                    // Force Regular Student for 1st–4th year
-                    $status = in_array(normalizeYearLevel($row['yr_lvl']), ["1ST YEAR","2ND YEAR","3RD YEAR","4TH YEAR"]) 
-                              ? "Regular Student" 
-                              : $row['status'];
+    <!-- Filter Form -->
+    <form method="GET" class="filter-form">
+      <input type="hidden" name="view" value="monitor">
+      <input type="text" name="search" placeholder="Search by name or student number" value="<?php echo htmlspecialchars($search); ?>">
+      <input type="date" name="date" value="<?php echo htmlspecialchars($date); ?>">
+      <button type="submit">Filter</button>
+      <a href="admin.php?view=monitor" style="margin-left:10px; text-decoration:none; color:#3498db;">Reset</a>
+    </form>
 
-                    echo "<tr>
-                            <td>{$row['ID']}</td>
-                            <td>{$fullname}</td>
-                            <td>{$row['yr_lvl']}</td>
-                            <td>{$row['crs']}</td>
-                            <td>{$row['Student_Number']}</td>
-                            <td>{$status}</td>
-                            <td>".($row['enrolled_status'] ? "Enrolled" : " Not Enrolled")."</td>
-                            <td class='actionbtns'>
-                              <a class='edit-btn' href='edit_student.php?id={$row['ID']}'>Edit</a>
-                              <a class='grades-btn' href='admin_student_grades.php?id={$row['ID']}'>Manage Grades</a>
-                              <form method='POST' style='display:inline'>
-                                <input type='hidden' name='approve_id' value='{$row['ID']}'>
-                                <button type='submit' class='approve-btn'>Approve</button>
-                              </form>
-                            </td>
-                          </tr>";
-                }
-                echo "</table>";
-            } else {
-                echo "<p>No students found.</p>";
-            }
-            ?>
-          </div>
+    <?php
+    if ($result && mysqli_num_rows($result) > 0) {
+        echo "<table>";
+        echo "<tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Year Level</th>
+                <th>Course</th>
+                <th>Student Number</th>
+                <th>Status</th>
+                <th>Enrollment Status</th>
+                <th>Actions</th>
+              </tr>";
+        while($row = mysqli_fetch_assoc($result)) {
+            $fullname = $row['L_name'].", ".$row['F_name']." ".$row['M_name'];
+            $status = in_array(normalizeYearLevel($row['yr_lvl']), ["1ST YEAR","2ND YEAR","3RD YEAR","4TH YEAR"]) 
+                      ? "Regular Student" 
+                      : $row['status'];
+
+            echo "<tr>
+                    <td>{$row['ID']}</td>
+                    <td>{$fullname}</td>
+                    <td>{$row['yr_lvl']}</td>
+                    <td>{$row['crs']}</td>
+                    <td>{$row['Student_Number']}</td>
+                    <td>{$status}</td>
+                    <td>".($row['enrolled_status'] ? "Enrolled" : "Not Enrolled")."</td>
+                    <td class='actionbtns'>
+                      <a class='edit-btn' href='edit_student.php?id={$row['ID']}'>Edit</a>
+                      <a class='grades-btn' href='admin_student_grades.php?id={$row['ID']}'>Manage Grades</a>
+                      <form method='POST' style='display:inline'>
+                        <input type='hidden' name='approve_id' value='{$row['ID']}'>
+                        <button type='submit' class='approve-btn'>Approve</button>
+                      </form>
+                    </td>
+                  </tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "<p>No students found.</p>";
+    }
+    ?>
+ </div>
+
         </div>
       </div>
     </div>
   </div>
+  <script>
+function showBox(which) {
+    var enrolled = document.getElementById("DashB");
+    var registered = document.getElementById("moni");
+
+    if (which === "dash") {
+        enrolled.style.display = "flex";
+        registered.style.display = "none";
+    } else if (which === "monitor") {
+        registered.style.display = "block";
+        enrolled.style.display = "none";
+    }
+}
+
+
+  </script>
+<script>
+function updateDashboard() {
+  fetch("dashboard_counts.php")
+    .then(res => res.json())
+    .then(data => {
+      if (data.registered !== undefined) {
+        document.getElementById("registeredCount").innerText = data.registered;
+      }
+      if (data.enrolled !== undefined) {
+        document.getElementById("enrolledCount").innerText = data.enrolled;
+      }
+    })
+    .catch(err => console.error("Error fetching counts:", err));
+}
+
+// Update every 5 seconds
+setInterval(updateDashboard, 5000);
+
+// Run once on load
+updateDashboard();
+</script>
+
+
 </body>
 </html>
