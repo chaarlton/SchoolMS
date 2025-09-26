@@ -131,9 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
         $crs    = mysqli_real_escape_string($conn, $student['crs']);
 
         // Insert into student_registrations if not already enrolled
-        $checkReg = mysqli_query($conn, "SELECT * FROM student_registrations 
-                        WHERE student_id='$student_id' 
-                          AND academic_year='$current_year' 
+        $checkReg = mysqli_query($conn, "SELECT * FROM student_registrations
+                        WHERE student_id='$student_id'
+                          AND academic_year='$current_year'
                           AND semester='$current_semester' LIMIT 1");
 
         if (mysqli_num_rows($checkReg) == 0) {
@@ -149,9 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
             $username = strtolower(substr($student['F_name'],0,1) . $student['L_name']);
             $password = generateRandomPassword();
 
-            mysqli_query($conn, "INSERT INTO users (username,password,role,created_at,student_id) 
+            mysqli_query($conn, "INSERT INTO users (username,password,role,created_at,student_id)
                            VALUES ('$username','$password','student',NOW(),'$student_id')");
-            
+
             $msg = "Student approved & enrolled. Account created → Username: $username, Password: $password";
         } else {
             $msg = "Student approved & enrolled. Account already exists.";
@@ -161,6 +161,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
     }
 
     // 🔑 Redirect to clear POST (avoids resubmission)
+    header("Location: admin.php?view=monitor&msg=" . urlencode($msg));
+    exit;
+}
+
+// --------------------
+// Handle change status (unenroll)
+// --------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status_id'])) {
+    $student_id = intval($_POST['change_status_id']);
+    $msg = "";
+
+    // Delete registration record
+    mysqli_query($conn, "DELETE FROM student_registrations WHERE student_id='$student_id' AND academic_year='$current_year' AND semester='$current_semester'");
+
+    // Delete user account
+    mysqli_query($conn, "DELETE FROM users WHERE student_id='$student_id'");
+
+    $msg = "Student unenrolled and account removed.";
+
+    // Redirect
     header("Location: admin.php?view=monitor&msg=" . urlencode($msg));
     exit;
 }
@@ -201,9 +221,10 @@ $result = mysqli_query($conn, $sql);
 <head>
   <meta charset="UTF-8">
   <title>ESCR | ADMIN PANEL</title>
-  <link rel="stylesheet" href="admin.css?v3">
+  <link rel="stylesheet" href="admin.css?v8">
   <link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
 </head>
+
 <style>
       table { width: 100%; border-collapse: collapse; margin-top: 15px; }
       table, th, td { border: 1px solid #ddd; }
@@ -231,9 +252,10 @@ $result = mysqli_query($conn, $sql);
             <ul>
               <li onclick="showBox('dash')">DASHBOARD</li>
               <li onclick="showBox('monitor')">STUDENT MONITORING</li>
-              <li>ADMIN CENTER</li>
+              <li onclick="showBox('admin_center')">ADMIN CENTER</li>
               <li>TICKET CENTER</li>
               <li>IT REQUEST</li>
+              <a href="logout.php"><li style=" position:relative;">LOGOUT</li></a>
             </ul>
           </nav>
         </div>
@@ -271,6 +293,9 @@ $result = mysqli_query($conn, $sql);
   <div class="d-box"><h1><?php echo $btvted_students; ?></h1><h3>BTVTED (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
   <div class="d-box"><h1><?php echo $shs_grade11_total; ?></h1><h3>GRADE 11 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
   <div class="d-box"><h1><?php echo $shs_grade12_total; ?></h1><h3>GRADE 12 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+<div class="Charts">
+  <canvas id="combinedChart"></canvas>
+</div>
 </div>
 
  <!-- Student Monitoring -->
@@ -333,12 +358,19 @@ $result = mysqli_query($conn, $sql);
                     <td>".($row['enrolled_status'] ? "Enrolled" : "Not Enrolled")."</td>
                     <td class='actionbtns'>
                       <a class='edit-btn' href='edit_student.php?id={$row['ID']}'>Edit</a>
-                      <a class='grades-btn' href='admin_student_grades.php?id={$row['ID']}'>Manage Grades</a>
-                      <form method='POST' style='display:inline'>
+                      <a class='grades-btn' href='admin_student_grades.php?id={$row['ID']}'>Manage Grades</a>";
+            if ($row['enrolled_status']) {
+                echo "<form method='POST' style='display:inline'>
+                        <input type='hidden' name='change_status_id' value='{$row['ID']}'>
+                        <button type='submit' class='change-status-btn'>Change Status</button>
+                      </form>";
+            } else {
+                echo "<form method='POST' style='display:inline'>
                         <input type='hidden' name='approve_id' value='{$row['ID']}'>
                         <button type='submit' class='approve-btn'>Approve</button>
-                      </form>
-                    </td>
+                      </form>";
+            }
+            echo "</td>
                   </tr>";
         }
         echo "</table>";
@@ -346,6 +378,31 @@ $result = mysqli_query($conn, $sql);
         echo "<p>No students found.</p>";
     }
     ?>
+ </div>
+
+ <!-- Admin Center -->
+ <div class="admin_center" id="admin_center" style="display:none;">
+    <h2>Admin Center</h2>
+    <div class="admin-sub">
+        <h3>Student Approvals</h3>
+        <p>Manage student enrollment approvals.</p>
+        <a href="admin_student_approvals.php"><button>Go to Student Approvals</button></a>
+    </div>
+    <div class="admin-sub">
+        <h3>Student Accounts</h3>
+        <p>Manage student user accounts.</p>
+        <a href="admin_accounts.php"><button>Go to Student Accounts</button></a>
+    </div>
+    <div class="admin-sub">
+        <h3>SUBJECT MANAGEMENT</h3>
+        <p>Manage the subjects for the current curriculum</p>
+        <a href="manage_subjects.php"><button>Go to Subjects Management</button></a>
+    </div>
+    <div class="admin-sub">
+        <h3>Reports</h3>
+        <p>Generate and view system reports.</p>
+        <a href="reports.php"><button>Go to Reports</button></a>
+    </div>
  </div>
 
         </div>
@@ -356,13 +413,20 @@ $result = mysqli_query($conn, $sql);
 function showBox(which) {
     var enrolled = document.getElementById("DashB");
     var registered = document.getElementById("moni");
+    var adminCenter = document.getElementById("admin_center");
 
     if (which === "dash") {
         enrolled.style.display = "flex";
         registered.style.display = "none";
+        adminCenter.style.display = "none";
     } else if (which === "monitor") {
         registered.style.display = "block";
         enrolled.style.display = "none";
+        adminCenter.style.display = "none";
+    } else if (which === "admin_center") {
+        adminCenter.style.display = "block";
+        enrolled.style.display = "none";
+        registered.style.display = "none";
     }
 }
 
@@ -389,7 +453,97 @@ setInterval(updateDashboard, 5000);
 // Run once on load
 updateDashboard();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function loadCharts() {
+  fetch("dashboard_chart_data.php")
+    .then(res => res.json())
+    .then(data => {
+      // Prepare labels and values for each dataset
+      const yearLabels = data.yearly.map(r => r.academic_year);
+      const yearValues = data.yearly.map(r => r.total);
+      const weekLabels = data.weekly.map(r => "Week " + r.week_num);
+      const weekValues = data.weekly.map(r => r.total);
+      const dayLabels = data.daily.map(r => r.day);
+      const dayValues = data.daily.map(r => r.total);
 
+      // Concatenate all labels for shared x-axis
+      const allLabels = [...yearLabels, ...weekLabels, ...dayLabels];
+
+      // Pad shorter datasets with nulls to match total length
+      const totalLength = allLabels.length;
+      const paddedYearValues = [...yearValues, ...Array(totalLength - yearValues.length).fill(null)];
+      const paddedWeekValues = [...Array(yearLabels.length).fill(null), ...weekValues, ...Array(totalLength - (yearLabels.length + weekValues.length)).fill(null)];
+      const paddedDayValues = [...Array(yearLabels.length + weekValues.length).fill(null), ...dayValues];
+
+      // Create single combined line chart
+      new Chart(document.getElementById("combinedChart"), {
+        type: "line",
+        data: {
+          labels: allLabels,
+          datasets: [
+            {
+              label: "Enrolled Students (Yearly)",
+              data: paddedYearValues,
+              fill: false,
+              borderColor: "#c0392b",
+              backgroundColor: "#e74c3c",
+              tension: 0.1,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            },
+            {
+              label: "Enrolled Students (Weekly)",
+              data: paddedWeekValues,
+              fill: false,
+              borderColor: "#c0392b",
+              backgroundColor: "#f39c12",
+              tension: 0.1,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            },
+            {
+              label: "Enrolled Students (Daily)",
+              data: paddedDayValues,
+              fill: false,
+              borderColor: "#c0392b",
+              backgroundColor: "#d68910",
+              tension: 0.1,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(192, 57, 43, 0.1)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(192, 57, 43, 0.1)'
+              }
+            }
+          }
+        }
+      });
+    })
+    .catch(err => console.error("Chart error:", err));
+}
+
+loadCharts();
+</script>
 
 </body>
 </html>

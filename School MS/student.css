@@ -6,6 +6,14 @@ body{
     height: 100vh;
 
 }
+a{
+    width: 100%;
+}
+.lgout{
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+}
 .container{
     align-self: center;
     justify-self: center;
@@ -100,4 +108,131 @@ h1,h2,h3,h4,h5{
 .Subjects tr,td,th{
     border: 1px solid black;
     border-collapse: collapse;
+}
+
+.Details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    background-color: red;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+}
+
+.Details h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.update-form {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.update-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+.update-form input[type="text"],
+.update-form input[type="password"],
+.update-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid white;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: black;
+    box-sizing: border-box;
+}
+
+.update-form button {
+    background-color: white;
+    color: red;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+
+.update-form button:hover {
+    background-color: #f0f0f0;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    color: white;
+}
+
+.detail-item strong {
+    color: #ffcccc;
+}
+
+.edit-btn {
+    background-color: white;
+    color: red;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.edit-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.gwa {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
 }

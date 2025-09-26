@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+    body{
+        width: 100%;
+        margin: auto;
+    }
+    .dash{
+        display: flex;
+        margin: 1%;
+        justify-content: center;
+    }
+    .d-box{
+        width: 25%;
+        height: 30vh;
+        background-color: black;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+        margin: 1%;
+        cursor: pointer;
+    }
+</style>
+  <style>
+      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+      table, th, td { border: 1px solid #ddd; }
+      th { background: #2c3e50; color: #fff; padding: 10px; text-align: left; }
+      td { padding: 8px; font-size: 14px; }
+      tr:nth-child(even) { background: #f9f9f9; }
+      tr:hover { background: #f1f1f1; }
+      .filter-form { margin: 15px 0; display: flex; gap: 10px; align-items: center; }
+      .filter-form input, .filter-form button { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
+      .filter-form button { background: #2c3e50; color: #fff; cursor: pointer; }
+      .filter-form button:hover { background: #1a252f; }
+      .actionbtns a, .actionbtns button { margin-right: 5px; padding: 5px 10px; border-radius: 4px; text-decoration: none; }
+      .edit-btn { background:#3498db; color:#fff; }
+      .grades-btn { background:#27ae60; color:#fff; }
+      .approve-btn { background:#f39c12; color:#fff; border:none; cursor:pointer; }
+      #moni { display: none; } /* Hide monitoring by default */
+  </style>
+<body>
+  <div class="dash"  >
+    <div class="d-box" onclick="nav()" id="DashB">
+        <h1>0</h1>
+        <h3>ENROLLED STUDENTS</h3>
+    </div>
+    <div class="d-box" onclick="nav()" id="moni">
+        <h1>0</h1>
+        <h3>REGISTERED STUDENTS</h3>
+        <h5>A.Y 2025-2026</h5>
+    </div>
+  </div>
+    <script>
+    function nav(){
+      var monitor = document.getElementById("moni").clicked;
+      var dash = document.getElementById("DashB").clicked;
+
+      if(monitor.clicked == true){
+        DashB.style.display = "none";
+        monitor.style.display = "block";
+      }
+      if(dash.clicked == true){
+        monitor.style.display = "none";
+        DashB.style.display = "block";
+      }
+    }
+    </script>
+</body>
+</html>

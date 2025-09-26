@@ -168,7 +168,12 @@ label{
     font-size: 10px;
     color: gray;
 }
-
+.section1{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    color:white;
+}
 input:valid ~ label,
 input:focus ~ label{
     position: absolute;
