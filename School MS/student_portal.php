@@ -216,7 +216,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Portal | ESCR</title>
-<link rel="stylesheet" href="student.css?v3">
+<link rel="stylesheet" href="student.css?v6">
+<link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
 </head>
 <body>
 <div class="main">
@@ -242,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <button class="btn1">FILES</button>
                 </div>
                 <div class="Details">
-                    <h2>👤 My Details</h2>
+                    <h2>My Details</h2>
                     <?php if (!empty($message)): ?>
                         <div class="message <?= $message_type; ?>">
                             <?= htmlspecialchars($message); ?>
@@ -320,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
                 <div class="Subjects">
-                    <h2>📘 My Subjects</h2>
+                    <h2>My Subjects</h2>
 
                     <form method="GET" class="filter">
                         Academic Year:

@@ -71,6 +71,7 @@ function getCountByCourse($conn, $course){
 }
 $bsit_students   = getCountByCourse($conn, "INFORMATION TECHNOLOGY (BSIT)");
 $bscs_students   = getCountByCourse($conn, "COMPUTER SCIENCE (BSCS)");
+$it_cs_students  = $bsit_students + $bscs_students;
 $bsba_fm         = getCountByCourse($conn, "BSBA - MAJOR IN FM");
 $bsba_mm         = getCountByCourse($conn, "BSBA - MAJOR IN MM");
 $bsba_hrdm       = getCountByCourse($conn, "BSBA - MAJOR IN HRDM");
@@ -268,16 +269,16 @@ $result = mysqli_query($conn, $sql);
 <div class="d-box1">
     <h1 id="enrolledCount"><?php echo $total_enrolled; ?></h1>
     <h3>ENROLLED STUDENTS</h3>
-    <div class="count">
-      <div class="cnt">
-        <h1><?php echo $f2f; ?></h1>
-        <h3>FACE TO FACE</h3>
-      </div>
-      <div class="cnt">
-        <h1><?php echo $OC; ?></h1>
-        <h3>ONLINE CLASS</h3>
-      </div>
-    </div>
+<div class="count">
+  <div class="cnt">
+    <h1 id="f2fCount"><?php echo $f2f; ?></h1>
+    <h3>FACE TO FACE</h3>
+  </div>
+  <div class="cnt">
+    <h1 id="onlineCount"><?php echo $OC; ?></h1>
+    <h3>ONLINE CLASS</h3>
+  </div>
+</div>
 </div>
 
 <div class="d-box1">
@@ -287,12 +288,12 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 
-  <div class="d-box"><h1><?php echo $bsit_students; ?></h1><h3>IT STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
-  <div class="d-box"><h1><?php echo $bsba_total; ?></h1><h3>BSBA (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
-  <div class="d-box"><h1><?php echo $bsais_students; ?></h1><h3>BSAIS STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
-  <div class="d-box"><h1><?php echo $btvted_students; ?></h1><h3>BTVTED (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
-  <div class="d-box"><h1><?php echo $shs_grade11_total; ?></h1><h3>GRADE 11 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
-  <div class="d-box"><h1><?php echo $shs_grade12_total; ?></h1><h3>GRADE 12 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="itCsCount"><?php echo $it_cs_students; ?></h1><h3>IT STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="bsbaCount"><?php echo $bsba_total; ?></h1><h3>BSBA (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="bsaisCount"><?php echo $bsais_students; ?></h1><h3>BSAIS STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="btvtedCount"><?php echo $btvted_students; ?></h1><h3>BTVTED (ALL MAJOR) STUDENTS</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="grade11Count"><?php echo $shs_grade11_total; ?></h1><h3>GRADE 11 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
+  <div class="d-box"><h1 id="grade12Count"><?php echo $shs_grade12_total; ?></h1><h3>GRADE 12 (ALL STRANDS)</h3><h5>A.Y <?php echo $current_year; ?></h5></div>
 <div class="Charts">
   <canvas id="combinedChart"></canvas>
 </div>
@@ -442,6 +443,30 @@ function updateDashboard() {
       }
       if (data.enrolled !== undefined) {
         document.getElementById("enrolledCount").innerText = data.enrolled;
+      }
+      if (data.f2f !== undefined) {
+        document.getElementById("f2fCount").innerText = data.f2f;
+      }
+      if (data.online !== undefined) {
+        document.getElementById("onlineCount").innerText = data.online;
+      }
+      if (data.it_cs !== undefined) {
+        document.getElementById("itCsCount").innerText = data.it_cs;
+      }
+      if (data.bsba !== undefined) {
+        document.getElementById("bsbaCount").innerText = data.bsba;
+      }
+      if (data.bsais !== undefined) {
+        document.getElementById("bsaisCount").innerText = data.bsais;
+      }
+      if (data.btvted !== undefined) {
+        document.getElementById("btvtedCount").innerText = data.btvted;
+      }
+      if (data.shs_g11 !== undefined) {
+        document.getElementById("grade11Count").innerText = data.shs_g11;
+      }
+      if (data.shs_g12 !== undefined) {
+        document.getElementById("grade12Count").innerText = data.shs_g12;
       }
     })
     .catch(err => console.error("Error fetching counts:", err));

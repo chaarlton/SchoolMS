@@ -33,6 +33,33 @@ $course_options = [
 ];
 
 // ---------------------------
+// Helper: Map yr_lvl to standard year level
+// ---------------------------
+function map_year_level($yr_lvl) {
+    $normalized = strtolower(trim($yr_lvl));
+    $mapping = [
+        "1" => "1ST YEAR",
+        "2" => "2ND YEAR",
+        "3" => "3RD YEAR",
+        "4" => "4TH YEAR",
+        "1st year" => "1ST YEAR",
+        "2nd year" => "2ND YEAR",
+        "3rd year" => "3RD YEAR",
+        "4th year" => "4TH YEAR",
+        "first year" => "1ST YEAR",
+        "second year" => "2ND YEAR",
+        "third year" => "3RD YEAR",
+        "fourth year" => "4TH YEAR",
+        "1st year college" => "1ST YEAR",
+        "2nd year college" => "2ND YEAR",
+        "3rd year college" => "3RD YEAR",
+        "4th year college" => "4TH YEAR",
+        // Add more if needed
+    ];
+    return $mapping[$normalized] ?? "1ST YEAR"; // Default to 1ST YEAR if not found
+}
+
+// ---------------------------
 // Helper: Generate random password
 // ---------------------------
 function generatePassword($length = 8) {
@@ -185,9 +212,10 @@ $result_dropped = mysqli_query($conn, $sql_dropped);
                 </select>
             </td>
             <td>
+                <?php $mapped_yr_lvl = map_year_level($row['yr_lvl']); ?>
                 <select name="year_level" required>
                     <?php foreach($year_levels as $yl): ?>
-                        <option value="<?= $yl ?>" <?= $yl==$row['yr_lvl']?'selected':'' ?>><?= $yl ?></option>
+                        <option value="<?= $yl ?>" <?= $yl==$mapped_yr_lvl?'selected':'' ?>><?= $yl ?></option>
                     <?php endforeach; ?>
                 </select>
             </td>
@@ -206,13 +234,13 @@ $result_dropped = mysqli_query($conn, $sql_dropped);
 <!-- ENROLLED -->
 <h2>🟢 Enrolled Students</h2>
 <table border="1" cellpadding="5">
-<tr>    
+<tr>
     <th>Name</th>
     <th>Course</th>
-    <th>Year Level</</th>
+    <th>Year Level</th>
     <th>Status</th>
     <th>Update</th>
-</tr>   
+</tr>
 <?php if(mysqli_num_rows($result_enrolled) > 0): ?>
     <?php while($row = mysqli_fetch_assoc($result_enrolled)): ?>
     <tr>

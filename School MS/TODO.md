@@ -1,14 +1,8 @@
-# TODO for Student Portal Details Update
+# TODO for Editing Student Mode of Learning
 
-- [x] Update student.css to add .Details styles
-- [x] Update student_portal.php to add JavaScript for toggling divs
-- [x] Add onclick events to menu buttons
-- [x] Add HTML forms for profile update and password change in Details div
-- [x] Add PHP code to handle POST requests for updating profile and password
-- [x] Update Details to display all student details read-only initially
-- [x] Add Edit button to toggle editable mode
-- [x] Fetch all fields from student_login table
-- [x] Make Date read-only
-- [x] Improve UI alignment and make it eye-catching
-- [x] Calculate age automatically from birthday
-- [x] Add General Weighted Average (GWA) to grades section
+- [x] Calculate current_year and current_semester in edit_student.php
+- [x] Modify student loading to fetch mol from student_registrations for current enrollment
+- [x] Add mol dropdown select to the form
+- [x] Update POST handling to update mol in student_registrations
+- [x] Apply CSS styles from student.css to the form for better UI
+- [x] Test the edit functionality

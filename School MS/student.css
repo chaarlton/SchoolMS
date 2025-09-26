@@ -93,8 +93,7 @@ h1,h2,h3,h4,h5{
 }
 .Subjects{
     width: 100%;
-
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
 }
@@ -198,6 +197,7 @@ h1,h2,h3,h4,h5{
     width: 80%;
     max-width: 600px;
     margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
 .detail-item {

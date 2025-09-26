@@ -1,0 +1,104 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Sep 25, 2025 at 09:03 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `escr_dbase`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_login`
+--
+
+CREATE TABLE `student_login` (
+  `ID` int(255) NOT NULL,
+  `L_name` varchar(99) NOT NULL,
+  `F_name` varchar(99) NOT NULL,
+  `M_name` varchar(99) NOT NULL,
+  `age` int(255) NOT NULL,
+  `bday` varchar(255) NOT NULL,
+  `pbirth` varchar(255) NOT NULL,
+  `gender` varchar(255) NOT NULL,
+  `marital` varchar(255) NOT NULL,
+  `yr_lvl` varchar(255) NOT NULL,
+  `crs` varchar(255) NOT NULL,
+  `street` varchar(255) NOT NULL,
+  `brgy` varchar(255) NOT NULL,
+  `city_mun` varchar(255) NOT NULL,
+  `Date` date NOT NULL DEFAULT current_timestamp(),
+  `Student_Number` varchar(20) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
+  `mol` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_login`
+--
+
+INSERT INTO `student_login` (`ID`, `L_name`, `F_name`, `M_name`, `age`, `bday`, `pbirth`, `gender`, `marital`, `yr_lvl`, `crs`, `street`, `brgy`, `city_mun`, `Date`, `Student_Number`, `status`, `mol`) VALUES
+(1, 'hernandez', 'charlton', 'faustinorio', 0, '2002-06-02', 'binangonan rizal', 'MALE', 'SINGLE', '2ND YEAR COLLEGE', 'INFORMATION TECHNOLOGY (BSIT)', 'sto nino', 'bilibiran', 'binangonan', '2025-09-09', 'A25-IT-0002', 'ENROLLED', ''),
+(6, 'san jose', 'juan carlo', 'Di ko alam', 0, '2003-10-28', 'cardona', 'MALE', 'SINGLE', '1ST YEAR COLLEGE', 'INFORMATION TECHNOLOGY (BSIT)', 'teST', 'Test', 'teST', '2025-09-09', NULL, 'REGULAR', ''),
+(9, 'dela cruz', 'juan', 'dimagiba', 0, '1958-01-02', 'binangonan rizal', 'MALE', 'SINGLE', '1ST YEAR COLLEGE', 'INFORMATION TECHNOLOGY (BSIT)', 'sto nino', 'bilibiran', 'binangonan', '2025-09-25', NULL, 'REGULAR', 'F2F'),
+(12, 'test', 'test', 'test', 0, '0022-02-02', '2', 'MALE', 'SINGLE', '1ST YEAR COLLEGE', 'INFORMATION TECHNOLOGY (BSIT)', 'test', 'test', 'test', '2025-09-25', NULL, 'REGULAR', 'F2F');
+
+--
+-- Triggers `student_login`
+--
+DELIMITER $$
+CREATE TRIGGER `set_student_status` BEFORE INSERT ON `student_login` FOR EACH ROW BEGIN
+    -- If the student is college (1st to 4th year), mark as REGULAR
+    IF NEW.yr_lvl IN ('1ST YEAR COLLEGE', '2ND YEAR COLLEGE', '3RD YEAR COLLEGE', '4TH YEAR COLLEGE') THEN
+        SET NEW.status = 'REGULAR';
+    ELSE
+        SET NEW.status = 'IRREGULAR';
+    END IF;
+END
+$$
+DELIMITER ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `student_login`
+--
+ALTER TABLE `student_login`
+  ADD PRIMARY KEY (`ID`),
+  ADD UNIQUE KEY `Student_Number` (`Student_Number`),
+  ADD UNIQUE KEY `Student_Number_3` (`Student_Number`),
+  ADD UNIQUE KEY `Student_Number_5` (`Student_Number`),
+  ADD KEY `Student_Number_2` (`Student_Number`);
+ALTER TABLE `student_login` ADD FULLTEXT KEY `Student_Number_4` (`Student_Number`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `student_login`
+--
+ALTER TABLE `student_login`
+  MODIFY `ID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
