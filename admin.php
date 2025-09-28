@@ -1,6 +1,7 @@
 <?php
 include 'check_access.php';
 requireRole('admin');
+include 'course_mapping.php';
 
 // Prevent browser cache
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -158,8 +159,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
         } else {
             $msg = "Student approved & enrolled. Account already exists.";
         }
+
+        // Generate student number for 1st year students in 1st semester
+        if ($yr_lvl == '1ST YEAR' && $current_semester == 1) {
+            $year_part = substr($current_year, 2, 2); // e.g. '25' for '2025-2026'
+            $course_abbr = $courseMap[$crs] ?? 'UNK';
+
+            // Find existing student numbers for this year and course
+            $pattern = 'A' . $year_part . '-' . $course_abbr . '-%';
+            $existing_query = mysqli_query($conn, "SELECT student_number FROM student_login WHERE student_number LIKE '$pattern' AND student_number IS NOT NULL");
+            $used_numbers = [];
+            while ($row = mysqli_fetch_assoc($existing_query)) {
+                $num_str = substr($row['student_number'], -4);
+                $used_numbers[] = intval($num_str);
+            }
+            sort($used_numbers);
+
+            // Find the smallest available number
+            $number = 1;
+            foreach ($used_numbers as $used) {
+                if ($used == $number) {
+                    $number++;
+                } else {
+                    break;
+                }
+            }
+
+            $student_number = 'A' . $year_part . '-' . $course_abbr . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+            mysqli_query($conn, "UPDATE student_login SET student_number = '$student_number' WHERE ID = '$student_id'");
+
+            $msg .= " Student number assigned: $student_number";
+        }
     } else {
         $msg = "Student not found.";
+    }
+
+    // Check if AJAX request
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+        echo json_encode(['msg' => $msg]);
+        exit;
     }
 
     // 🔑 Redirect to clear POST (avoids resubmission)
@@ -174,6 +212,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status_id'])) 
     $student_id = intval($_POST['change_status_id']);
     $msg = "";
 
+    // Remove student number
+    mysqli_query($conn, "UPDATE student_login SET student_number = NULL WHERE ID = '$student_id'");
+
     // Delete registration record
     mysqli_query($conn, "DELETE FROM student_registrations WHERE student_id='$student_id' AND academic_year='$current_year' AND semester='$current_semester'");
 
@@ -181,6 +222,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status_id'])) 
     mysqli_query($conn, "DELETE FROM users WHERE student_id='$student_id'");
 
     $msg = "Student unenrolled and account removed.";
+
+    // Check if AJAX request
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+        echo json_encode(['msg' => $msg]);
+        exit;
+    }
 
     // Redirect
     header("Location: admin.php?view=monitor&msg=" . urlencode($msg));
@@ -217,6 +264,8 @@ if ($date !== '') {
 $sql .= " ORDER BY s.L_name, s.F_name";
 
 $result = mysqli_query($conn, $sql);
+
+// Student data loaded via AJAX
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -323,63 +372,33 @@ $result = mysqli_query($conn, $sql);
 <?php endif; ?>
 
     <!-- Filter Form -->
-    <form method="GET" class="filter-form">
+    <form id="filterForm" class="filter-form">
       <input type="hidden" name="view" value="monitor">
-      <input type="text" name="search" placeholder="Search by name or student number" value="<?php echo htmlspecialchars($search); ?>">
-      <input type="date" name="date" value="<?php echo htmlspecialchars($date); ?>">
+      <input type="text" id="search" name="search" placeholder="Search by name or student number" value="<?php echo htmlspecialchars($search); ?>">
+      <input type="date" id="date" name="date" value="<?php echo htmlspecialchars($date); ?>">
       <button type="submit">Filter</button>
       <a href="admin.php?view=monitor" style="margin-left:10px; text-decoration:none; color:#3498db;">Reset</a>
     </form>
 
-    <?php
-    if ($result && mysqli_num_rows($result) > 0) {
-        echo "<table>";
-        echo "<tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Year Level</th>
-                <th>Course</th>
-                <th>Student Number</th>
-                <th>Status</th>
-                <th>Enrollment Status</th>
-                <th>Actions</th>
-              </tr>";
-        while($row = mysqli_fetch_assoc($result)) {
-            $fullname = $row['L_name'].", ".$row['F_name']." ".$row['M_name'];
-            $status = in_array(normalizeYearLevel($row['yr_lvl']), ["1ST YEAR","2ND YEAR","3RD YEAR","4TH YEAR"]) 
-                      ? "Regular Student" 
-                      : $row['status'];
-
-            echo "<tr>
-                    <td>{$row['ID']}</td>
-                    <td>{$fullname}</td>
-                    <td>{$row['yr_lvl']}</td>
-                    <td>{$row['crs']}</td>
-                    <td>{$row['Student_Number']}</td>
-                    <td>{$status}</td>
-                    <td>".($row['enrolled_status'] ? "Enrolled" : "Not Enrolled")."</td>
-                    <td class='actionbtns'>
-                      <a class='edit-btn' href='edit_student.php?id={$row['ID']}'>Edit</a>
-                      <a class='grades-btn' href='admin_student_grades.php?id={$row['ID']}'>Manage Grades</a>";
-            if ($row['enrolled_status']) {
-                echo "<form method='POST' style='display:inline'>
-                        <input type='hidden' name='change_status_id' value='{$row['ID']}'>
-                        <button type='submit' class='change-status-btn'>Change Status</button>
-                      </form>";
-            } else {
-                echo "<form method='POST' style='display:inline'>
-                        <input type='hidden' name='approve_id' value='{$row['ID']}'>
-                        <button type='submit' class='approve-btn'>Approve</button>
-                      </form>";
-            }
-            echo "</td>
-                  </tr>";
-        }
-        echo "</table>";
-    } else {
-        echo "<p>No students found.</p>";
-    }
-    ?>
+    <div id="studentTableContainer">
+      <table id="studentTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Year Level</th>
+            <th>Course</th>
+            <th>Student Number</th>
+            <th>Status</th>
+            <th>Enrollment Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be populated via AJAX -->
+        </tbody>
+      </table>
+    </div>
  </div>
 
  <!-- Admin Center -->
@@ -411,29 +430,7 @@ $result = mysqli_query($conn, $sql);
       </div>
     </div>
   </div>
-  <script>
-function showBox(which) {
-    var enrolled = document.getElementById("DashB");
-    var registered = document.getElementById("moni");
-    var adminCenter = document.getElementById("admin_center");
 
-    if (which === "dash") {
-        enrolled.style.display = "flex";
-        registered.style.display = "none";
-        adminCenter.style.display = "none";
-    } else if (which === "monitor") {
-        registered.style.display = "block";
-        enrolled.style.display = "none";
-        adminCenter.style.display = "none";
-    } else if (which === "admin_center") {
-        adminCenter.style.display = "block";
-        enrolled.style.display = "none";
-        registered.style.display = "none";
-    }
-}
-
-
-  </script>
 <script>
 function updateDashboard() {
   fetch("dashboard_chart_data.php")
@@ -569,6 +566,163 @@ function loadCharts() {
 }
 
 loadCharts();
+</script>
+
+<script>
+// Student monitoring auto-update
+let autoUpdateInterval;
+
+function loadStudentData(search = '', date = '') {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (date) params.append('date', date);
+  const url = `student_monitoring_data.php?${params.toString()}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(students => {
+      const tableBody = document.querySelector('#studentTable tbody') || document.createElement('tbody');
+      tableBody.innerHTML = '';
+
+      if (students.length > 0) {
+        students.forEach(student => {
+          const row = tableBody.insertRow();
+          row.innerHTML = `
+            <td>${student.ID}</td>
+            <td>${student.fullname}</td>
+            <td>${student.yr_lvl}</td>
+            <td>${student.crs}</td>
+            <td>${student.Student_Number}</td>
+            <td>${student.status}</td>
+            <td>${student.enrolled_status}</td>
+            <td class='actionbtns'>
+              <a class='edit-btn' href='edit_student.php?id=${student.ID}'>Edit</a>
+              <a class='grades-btn' href='admin_student_grades.php?id=${student.ID}'>Manage Grades</a>
+              ${student.enrolled_status === 'Enrolled' ?
+                `<button onclick="changeStatus(${student.ID})" class='change-status-btn'>Change Status</button>` :
+                `<button onclick="approveStudent(${student.ID})" class='approve-btn'>Approve</button>`
+              }
+            </td>
+          `;
+        });
+      } else {
+        const row = tableBody.insertRow();
+        row.innerHTML = '<td colspan="8">No students found.</td>';
+      }
+
+      if (!document.querySelector('#studentTable tbody')) {
+        document.querySelector('#studentTable').appendChild(tableBody);
+      }
+    })
+    .catch(err => console.error('Error loading student data:', err));
+}
+
+function startAutoUpdate() {
+  loadStudentData();
+  autoUpdateInterval = setInterval(() => {
+    const search = document.getElementById('search').value;
+    const date = document.getElementById('date').value;
+    loadStudentData(search, date);
+  }, 10000); // Update every 10 seconds
+}
+
+function stopAutoUpdate() {
+  if (autoUpdateInterval) {
+    clearInterval(autoUpdateInterval);
+  }
+}
+
+// Filter form submission
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const search = document.getElementById('search').value;
+  const date = document.getElementById('date').value;
+  loadStudentData(search, date);
+});
+
+// Reset link
+document.querySelector('a[href="admin.php?view=monitor"]').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('search').value = '';
+  document.getElementById('date').value = '';
+  loadStudentData();
+});
+
+// Start auto-update when monitoring view is shown
+function showBox(which) {
+  var enrolled = document.getElementById("DashB");
+  var registered = document.getElementById("moni");
+  var adminCenter = document.getElementById("admin_center");
+
+  if (which === "dash") {
+    enrolled.style.display = "flex";
+    registered.style.display = "none";
+    adminCenter.style.display = "none";
+    stopAutoUpdate();
+  } else if (which === "monitor") {
+    registered.style.display = "block";
+    enrolled.style.display = "none";
+    adminCenter.style.display = "none";
+    startAutoUpdate();
+  } else if (which === "admin_center") {
+    adminCenter.style.display = "block";
+    enrolled.style.display = "none";
+    registered.style.display = "none";
+    stopAutoUpdate();
+  }
+}
+
+// Message display function
+function showMessage(msg) {
+  const alertBox = document.createElement('div');
+  alertBox.style.cssText = 'padding:10px; background:#dff0d8; color:#3c763d; border:1px solid #3c763d; margin-bottom:10px; border-radius:5px; position:fixed; top:10px; right:10px; z-index:1000;';
+  alertBox.textContent = msg;
+  document.body.appendChild(alertBox);
+  setTimeout(() => {
+    alertBox.style.opacity = '0';
+    setTimeout(() => document.body.removeChild(alertBox), 1000);
+  }, 5000);
+}
+
+// AJAX functions for approve and change status
+function approveStudent(id) {
+  fetch('admin.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: new URLSearchParams({approve_id: id})
+  })
+  .then(res => res.json())
+  .then(data => {
+    showMessage(data.msg);
+    loadStudentData();
+  })
+  .catch(err => console.error('Error:', err));
+}
+
+function changeStatus(id) {
+  fetch('admin.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: new URLSearchParams({change_status_id: id})
+  })
+  .then(res => res.json())
+  .then(data => {
+    showMessage(data.msg);
+    loadStudentData();
+  })
+  .catch(err => console.error('Error:', err));
+}
+
+// Initial load if monitoring view
+if (window.location.search.includes('view=monitor')) {
+  startAutoUpdate();
+}
 </script>
 
 </body>

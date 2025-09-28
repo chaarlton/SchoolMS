@@ -25,28 +25,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $semester = $_POST['semester'];
 
     // Check if student already exists
-    $check_sql = "SELECT * FROM student_login 
-                  WHERE L_name='$lname' AND F_name='$fname' 
+    $check_sql = "SELECT * FROM student_login
+                  WHERE L_name='$lname' AND F_name='$fname'
                   AND M_name='$mname' AND bday='$bday'";
     $result = mysqli_query($conn, $check_sql);
 
     if (mysqli_num_rows($result) > 0) {
-        $errorMsg = "❌ Student already exists!";
+        $errorMsg = "Student already exists!";
     } else {
         // Insert profile into student_login ONLY
-        $sql = "INSERT INTO student_login 
-           (L_name, F_name, M_name, bday, pbirth, gender, marital, yr_lvl, crs, street, brgy, city_mun, mol) 
-           VALUES 
+        $sql = "INSERT INTO student_login
+           (L_name, F_name, M_name, bday, pbirth, gender, marital, yr_lvl, crs, street, brgy, city_mun, mol)
+           VALUES
            ('$lname', '$fname', '$mname', '$bday', '$pbirth', '$gender', '$marital', '$yr_lvl', '$course', '$street', '$brgy', '$city', '$mol')";
 
         if (mysqli_query($conn, $sql)) {
-            $msg = "✅ Profile submitted successfully! Await admin approval for enrollment.";
-            // Do NOT insert into student_registrations here
+            header("Location: form.php?submitted=1");
+            exit;
         } else {
             $errorMsg = "Error: " . mysqli_error($conn);
         }
     }
 }
+$submitted = isset($_GET['submitted']) && $_GET['submitted'] == '1';
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +58,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>ESCR | Student Registration Form</title>
     <link rel="stylesheet" href="Form.css?v=8">
     <link rel="shortcut icon" href="Picture3.png" type="image/x-icon">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .close-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-btn:hover {
+            background: #45a049;
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">
@@ -92,6 +127,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </div>
 <?php endif; ?>
+
+<?php if ($submitted): ?>
+<div id="successModal" class="modal" style="display: block;">
+    <div class="modal-content">
+        <h2>✅ Success!</h2>
+        <p>Profile submitted successfully! Await admin approval for enrollment.</p>
+        <button class="close-btn" onclick="window.location.href='index.php'">Close & Go to Home</button>
+    </div>
+</div>
+<?php endif; ?>
+
         <div class="contents">
             
         <form method="POST" action="form.php" >

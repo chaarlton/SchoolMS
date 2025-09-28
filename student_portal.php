@@ -31,6 +31,7 @@ $current_semester = ($month >= 6 && $month <= 10) ? 1 : 2;
 $sql_student = "SELECT * FROM student_login WHERE ID='$student_id' LIMIT 1";
 $result_student = mysqli_query($conn, $sql_student);
 $student = mysqli_fetch_assoc($result_student);
+$student['profile_picture'] = $student['profile_picture'] ?? 'sample.png';
 
 // Get registration date from student_login
 $sql_reg_date = "SELECT Date FROM student_login WHERE ID = '$student_id' LIMIT 1";
@@ -169,6 +170,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Refresh student data
             $result_student = mysqli_query($conn, $sql_student);
             $student = mysqli_fetch_assoc($result_student);
+            $student['profile_picture'] = $student['profile_picture'] ?? 'sample.png';
+
+            // Handle profile picture upload
+            $upload_success = true;
+            $upload_message = '';
+            if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['profile_picture'];
+                $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
+                $max_size = 2 * 1024 * 1024; // 2MB
+
+                if ($file['size'] > $max_size) {
+                    $upload_success = false;
+                    $upload_message = ' File too large (max 2MB).';
+                } elseif (!in_array($file['type'], $allowed_types)) {
+                    $upload_success = false;
+                    $upload_message = ' Invalid file type (only JPG/PNG).';
+                } else {
+                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $filename = $student_id . '_' . time() . '.' . strtolower($ext);
+                    $upload_path = 'uploads/profiles/' . $filename;
+
+                    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                        $update_img_sql = "UPDATE student_login SET profile_picture='" . mysqli_real_escape_string($conn, $upload_path) . "' WHERE ID='$student_id'";
+                        if (mysqli_query($conn, $update_img_sql)) {
+                            $upload_message = ' Profile picture updated successfully!';
+                            // Refresh again for new picture
+                            $result_student = mysqli_query($conn, $sql_student);
+                            $student = mysqli_fetch_assoc($result_student);
+                            $student['profile_picture'] = $student['profile_picture'] ?? 'sample.png';
+                        } else {
+                            $upload_success = false;
+                            $upload_message = ' Profile updated, but image save failed.';
+                            // Optionally delete the uploaded file
+                            // unlink($upload_path);
+                        }
+                    } else {
+                        $upload_success = false;
+                        $upload_message = ' Failed to upload image.';
+                    }
+                }
+            }
+
+            if (!$upload_success && !empty($upload_message)) {
+                $message .= $upload_message;
+            } elseif (!empty($upload_message)) {
+                $message .= $upload_message;
+            }
         } else {
             $message = 'Error updating profile: ' . mysqli_error($conn);
             $message_type = 'error';
@@ -227,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <div class="contents">
             <div class="left">
-                <img class="profile" src="sample.png">
+                <img class="profile" src="<?= htmlspecialchars($student['profile_picture']); ?>">
                 <h3><?= htmlspecialchars($student['F_name'].' '.$student['M_name'].' '.$student['L_name']); ?></h3>
                 <h5><?= htmlspecialchars($student['crs']); ?></h5>
                 <h5><i>REGULAR STUDENT</i></h5>
@@ -274,7 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <div id="edit-mode" style="display: none;">
-                        <form method="POST" class="update-form">
+                        <form method="POST" enctype="multipart/form-data" class="update-form">
                             <h3>Update Profile</h3>
                             <label for="f_name">First Name:</label>
                             <input type="text" id="f_name" name="f_name" value="<?= htmlspecialchars($student['F_name']); ?>" required>
@@ -300,6 +348,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <option value="3RD YEAR COLLEGE" <?= $student['yr_lvl'] == '3RD YEAR COLLEGE' ? 'selected' : ''; ?>>3RD YEAR COLLEGE</option>
                                 <option value="4TH YEAR COLLEGE" <?= $student['yr_lvl'] == '4TH YEAR COLLEGE' ? 'selected' : ''; ?>>4TH YEAR COLLEGE</option>
                             </select>
+
+                            <label for="profile_picture">Profile Picture:</label>
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
 
                             <button type="submit" name="update_profile">Update Profile</button>
                             <button type="button" onclick="toggleEdit()">Cancel</button>
