@@ -188,3 +188,21 @@ table {
 .admin-sub button:hover {
     background-color: #2980b9;
 }
+
+.home-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.home-btn:hover {
+    background-color: #2980b9;
+}

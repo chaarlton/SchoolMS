@@ -1,0 +1,4 @@
+- [x] Modify subjects_query in admin_irregular_setup.php to check for subjects taken in any year/semester
+- [x] Update bind_param accordingly
+- [ ] Test the page to ensure checkboxes are checked for previously taken subjects
+- [x] Add a "Home" button or link to all admin pages (admin_*.php) to navigate back to the admin dashboard (admin.php)

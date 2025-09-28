@@ -1,0 +1,395 @@
+body{
+    margin: auto;
+}
+.main{
+    width: 100%;
+    height: 100vh;
+
+}
+a{
+    width: 100%;
+}
+.lgout{
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+}
+.container{
+    align-self: center;
+    justify-self: center;
+    width: 90%;
+    height: 100vh;
+    background-color: white;
+}
+.cover{
+    width: 100%;
+    height: 20%;
+    margin: 0;
+}
+.cover img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.contents{
+    display: flex;
+    height: 80%
+    
+}
+.left{
+    width: 30%;
+    background:linear-gradient(red, orange);
+    box-shadow: 5px 0px 20px 0px black;
+    display: flex;
+    flex-direction: column;
+    z-index: 99;
+    color: white;
+    height: 100%;
+}
+.profile{
+    width: 40%;
+    align-self: center;
+    justify-self: center;
+    border-radius: 50%;
+    margin-top: -20%;
+    border: 2px solid white;
+}
+h1,h2,h3,h4,h5{
+    margin: 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+.right{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: red;
+}
+.menu{
+    width: 100%;
+    background-color: white;
+    height: 50px;
+    display: flex;
+
+    z-index: 9;
+    justify-content: center;
+}
+.btn1{
+    justify-self: center;
+    width: 30%;
+    border: none;
+    background-color: transparent;
+    border-bottom: 2px solid black;
+    font-size: 15px;
+    color: black;
+    margin: 1px;
+    margin-bottom: 0;
+    cursor: pointer;
+
+}
+.btn1:hover{
+    
+    border-bottom: 4px solid red;
+}
+.Subjects{
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+.Subjects table{
+    justify-self: center;
+    border: 1px solid white;
+    border-collapse: collapse;
+    text-align: center;
+    color: white;
+}
+.Subjects tr,td,th{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.Details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    background-color: red;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+}
+
+.Details h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.update-form {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.update-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+.update-form input[type="text"],
+.update-form input[type="password"],
+.update-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid white;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: black;
+    box-sizing: border-box;
+}
+
+.update-form button {
+    background-color: white;
+    color: red;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+
+.update-form button:hover {
+    background-color: #f0f0f0;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.detail-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    color: white;
+}
+
+.detail-item strong {
+    color: #ffcccc;
+}
+
+.edit-btn {
+    background-color: white;
+    color: red;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.edit-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.gwa {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .contents {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left {
+        width: 100%;
+        height: auto;
+        padding: 20px 0;
+        box-shadow: none;
+        border-bottom: 2px solid white;
+    }
+
+    .profile {
+        width: 30%;
+        margin-top: -10%;
+    }
+
+    .left h3, .left h5 {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .right {
+        width: 100%;
+        margin: auto;
+        height: auto;
+    }
+
+    .menu {
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn1 {
+        width: 80%;
+        margin: 5px 0;
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .Subjects, .Details {
+        width: 95%;
+       
+        height: auto;
+
+    }
+
+    .Subjects {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 15px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Subjects table {
+        width: 100%;
+        font-size: .6rem;
+        table-layout: fixed;
+        text-overflow:ellipsis;
+        text-align:center;
+        border-collapse: collapse;
+        background-color: rgba(255,255,255,0.95);
+        color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .Subjects th {
+        background-color: #dc3545;
+        color: #fff;
+        padding: 10px 6px;
+        font-size: .3rem;
+        text-align: center;
+        white-space: nowrap;
+        border-right: 1px solid #fff;
+        text-overflow:hidden;
+        width:100%;
+        
+    }
+
+    .Subjects th:last-child {
+        border-right: none;
+    }
+
+    .Subjects td {
+        width: 20px;
+        height: 20px;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .Subjects tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .update-form {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .update-form input[type="text"],
+    .update-form input[type="password"],
+    .update-form select {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+
+    .update-form button {
+        padding: 8px 15px;
+    }
+
+    .filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter select, .filter button {
+        margin: 5px 0;
+        padding: 8px;
+    }
+    form{
+        width:100%;
+        display:flex;
+        justify-content:start;
+        align-items:start;
+        position:relative;
+        flex-wrap: wrap;
+        text-align:center;
+        color:white;
+    }
+    form select{
+        width:100%;
+        align-self:flex-start;
+        color:blac;
+    }
+}
